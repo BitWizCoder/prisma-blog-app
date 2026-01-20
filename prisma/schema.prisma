@@ -26,18 +26,28 @@ model Post {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   comments   Comment[]
+
+  @@index([authorId])
+  @@map("posts")
 }
 
 model Comment {
-  id        String        @id @default(uuid())
-  content   String        @db.Text
-  autorId   String
-  postId    String
-  post      Post          @relation(fields: [postId], references: [id])
-  parentId  String?
+  id       String    @id @default(uuid())
+  content  String    @db.Text
+  autorId  String
+  postId   String
+  post     Post      @relation(fields: [postId], references: [id])
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+
   status    CommentStatus @default(APPROVED)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+
+  @@index([postId])
+  @@index([autorId])
+  @@map("comments")
 }
 
 enum PostStatus {
