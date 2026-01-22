@@ -46,22 +46,24 @@ export const auth = betterAuth({
   },
 
   emailVerification: {
+    sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
-      const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
+      try {
+        const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
 
-      const info = await transporter.sendMail({
-        from: '"Prisma Blog" <prisma@blog.email>',
-        to: user.email || "gridpixelsui@gmail.com", // Dynamic recipient
-        subject: "Verify your Prisma Blog account",
-        text: `Welcome to Prisma Blog! Please verify your email by clicking this link: ${verificationUrl}`,
-        html: `
+        const info = await transporter.sendMail({
+          from: '"Prisma Blog" <prisma@blog.email>',
+          to: user.email,
+          subject: "Verify your Prisma Blog account",
+          text: `Welcome to Prisma Blog! Please verify your email by clicking this link: ${verificationUrl}`,
+          html: `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e1e1e1; border-radius: 8px; overflow: hidden;">
       <div style="background-color: #5a67d8; padding: 20px; text-align: center;">
         <h1 style="color: white; margin: 0; font-size: 24px;">Prisma Blog</h1>
       </div>
       <div style="padding: 30px; color: #333; line-height: 1.6;">
         <h2 style="margin-top: 0;">Confirm your email address</h2>
-        <p>Hi there,</p>
+        <p>Hi ${user.name},</p>
         <p>Thanks for signing up for Prisma Blog! To get started, please click the button below to verify your email address.</p>
         
         <div style="text-align: center; margin: 30px 0;">
@@ -80,9 +82,13 @@ export const auth = betterAuth({
       </div>
     </div>
     `,
-      });
+        });
 
-      console.log("Message sent:", info.messageId);
+        console.log("Message sent:", info.messageId);
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
     },
   },
 });
